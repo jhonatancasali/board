@@ -1,0 +1,116 @@
+Claro! Aqui está um exemplo básico de como você pode criar um **DAO** e um **Service** para uma entidade `Board` em Java usando Spring Boot e JPA.
+
+---
+
+### 1. Entidade `Board`
+
+```java
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+@Entity
+public class Board {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String title;
+    private String description;
+
+    // Construtores
+    public Board() {}
+
+    public Board(String title, String description) {
+        this.title = title;
+        this.description = description;
+    }
+
+    // Getters e Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+}
+```
+
+---
+
+### 2. DAO (Repository) `BoardRepository`
+
+```java
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface BoardRepository extends JpaRepository<Board, Long> {
+    // Aqui você pode adicionar métodos customizados, ex:
+    // List<Board> findByTitleContaining(String title);
+}
+```
+
+---
+
+### 3. Service `BoardService`
+
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class BoardService {
+
+    private final BoardRepository boardRepository;
+
+    @Autowired
+    public BoardService(BoardRepository boardRepository) {
+        this.boardRepository = boardRepository;
+    }
+
+    // Criar um novo Board
+    public Board createBoard(Board board) {
+        return boardRepository.save(board);
+    }
+
+    // Buscar todos os Boards
+    public List<Board> getAllBoards() {
+        return boardRepository.findAll();
+    }
+
+    // Buscar Board por ID
+    public Optional<Board> getBoardById(Long id) {
+        return boardRepository.findById(id);
+    }
+
+    // Atualizar Board
+    public Board updateBoard(Long id, Board updatedBoard) {
+        return boardRepository.findById(id)
+                .map(board -> {
+                    board.setTitle(updatedBoard.getTitle());
+                    board.setDescription(updatedBoard.getDescription());
+                    return boardRepository.save(board);
+                })
+                .orElseThrow(() -> new RuntimeException("Board not found with id " + id));
+    }
+
+    // Deletar Board
+    public void deleteBoard(Long id) {
+        boardRepository.deleteById(id);
+    }
+}
+```
+
+---
+
+Se você quiser, posso criar **também o Controller REST completo para o Board**, integrando com esse DAO e Service, pronto para testar com Postman.
+
+Quer que eu faça isso?
